@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 import brave.sampler.Sampler;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -23,9 +24,16 @@ import org.springframework.context.annotation.Bean;
 @EnableEurekaClient
 @EnableDiscoveryClient
 @EnableFeignClients
+@EnableCircuitBreaker
 public class ProductViewServiceFeignApplication {
 
     public static void main(String[] args) {
+        //判断 rabbitMQ 是否启动
+        int rabbitMQPort = 5672;
+        if(NetUtil.isUsableLocalPort(rabbitMQPort)) {
+            System.err.printf("未在端口%d 发现 rabbitMQ服务，请检查rabbitMQ 是否启动", rabbitMQPort );
+            System.exit(1);
+        }
         int port = 0;
         int defaultPort = 8012;
         Future<Integer> future = ThreadUtil.execAsync(() -> {
@@ -57,6 +65,7 @@ public class ProductViewServiceFeignApplication {
         new SpringApplicationBuilder(ProductViewServiceFeignApplication.class).properties("server.port=" + port).run(args);
     }
 
+    //服务链路追踪
     @Bean
     public Sampler defaultSampler(){
         return Sampler.ALWAYS_SAMPLE;

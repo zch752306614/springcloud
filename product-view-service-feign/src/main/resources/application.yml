@@ -1,8 +1,3 @@
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8080/eureka/
-
 spring:
   application:
     name: product-view-service-feign
@@ -16,3 +11,16 @@ spring:
     mode: HTML5
     servlet:
       content-type: text/html
+
+feign:
+  hystrix:
+   enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"
